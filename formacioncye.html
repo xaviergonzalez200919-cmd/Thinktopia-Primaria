@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guerreras Kpop de los Valores</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+image-rendering:pixelated;
+}
+
+body{
+overflow:hidden;
+background:#111;
+}
+
+#menu{
+position:fixed;
+inset:0;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+background:linear-gradient(180deg,#ff67c8,#7ad7ff,#fff3a6);
+z-index:100;
+}
+
+#menu h1{
+font-size:54px;
+color:white;
+text-shadow:4px 4px #ff1493;
+text-align:center;
+margin-bottom:15px;
+}
+
+#menu p{
+font-size:24px;
+color:white;
+margin-bottom:30px;
+}
+
+.characterSelect{
+display:flex;
+gap:30px;
+flex-wrap:wrap;
+justify-content:center;
+}
+
+.charCard{
+width:220px;
+background:white;
+border:6px solid black;
+padding:12px;
+cursor:pointer;
+transition:.2s;
+box-shadow:8px 8px black;
+}
+
+.charCard:hover{
+transform:translateY(-10px) scale(1.03);
+}
+
+.charCard img{
+width:100%;
+height:260px;
+object-fit:cover;
+background:#ffd8f0;
+}
+
+.charCard h2{
+text-align:center;
+margin-top:10px;
+font-size:26px;
+}
+
+#game{
+display:none;
+width:100vw;
+height:100vh;
+position:relative;
+overflow:hidden;
+background:#7bdc72;
+}
+
+#map{
+position:absolute;
+inset:0;
+background:
+repeating-linear-gradient(90deg,#7ddc5d 0 64px,#73d154 64px 128px),
+repeating-linear-gradient(0deg,#7ddc5d 0 64px,#73d154 64px 128px);
+}
+
+.house{
+position:absolute;
+width:120px;
+height:120px;
+background:#ffcc66;
+border:6px solid black;
+}
+
+.house::before{
+content:'';
+position:absolute;
+top:-50px;
+left:-6px;
+width:0;
+height:0;
+border-left:60px solid transparent;
+border-right:60px solid transparent;
+border-bottom:50px solid #ff5c5c;
+}
+
+#player{
+position:absolute;
+width:90px;
+height:90px;
+left:300px;
+top:300px;
+z-index:10;
+}
+
+#player img{
+width:100%;
+height:100%;
+object-fit:contain;
+}
+
+.npc{
+position:absolute;
+width:80px;
+height:80px;
+z-index:5;
+}
+
+.npc img{
+width:100%;
+height:100%;
+object-fit:contain;
+}
+
+.trash{
+position:absolute;
+font-size:40px;
+z-index:4;
+}
+
+#ui{
+position:absolute;
+top:15px;
+left:15px;
+width:420px;
+background:white;
+border:6px solid black;
+padding:15px;
+box-shadow:8px 8px black;
+z-index:20;
+}
+
+#score,#coins,#rank{
+font-size:24px;
+margin-bottom:8px;
+}
+
+#dialogue{
+font-size:20px;
+min-height:80px;
+}
+
+#choices{
+margin-top:10px;
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+button{
+padding:14px;
+font-size:18px;
+font-weight:bold;
+background:#ff4fb2;
+color:white;
+border:4px solid black;
+cursor:pointer;
+}
+
+button:hover{
+transform:scale(1.03);
+}
+
+#message{
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+background:white;
+padding:25px;
+border:6px solid black;
+font-size:32px;
+font-weight:bold;
+display:none;
+text-align:center;
+z-index:50;
+box-shadow:8px 8px black;
+}
+
+.instructions{
+position:absolute;
+bottom:15px;
+left:50%;
+transform:translateX(-50%);
+background:white;
+padding:12px 18px;
+border:5px solid black;
+font-size:18px;
+font-weight:bold;
+z-index:20;
+}
+
+.spark{
+position:absolute;
+width:16px;
+height:16px;
+background:yellow;
+border-radius:50%;
+animation:spark 1s linear forwards;
+z-index:30;
+}
+
+@keyframes spark{
+0%{transform:translateY(0) scale(1);opacity:1;}
+100%{transform:translateY(-120px) scale(0);opacity:0;}
+}
+</style>
+</head>
+<body>
+
+<div id="menu">
+<h1>GUERRERAS KPOP<br>DE LOS VALORES ✨</h1>
+<p>elige tu guerrera favorita</p>
+
+<div class="characterSelect">
+<div class="charCard" data-skin="https://pngimg.com/d/anime_girl_PNG40.png">
+<img src="https://img1.picmix.com/output/stamp/normal/8/0/1/7/2827108_43b8b.png">
+<h2>Rumi</h2>
+</div>
+
+<div class="charCard" data-skin="https://pngimg.com/d/anime_girl_PNG61.png">
+<img src="https://pngimg.com/d/anime_girl_PNG61.png">
+<h2>Mika</h2>
+</div>
+
+<div class="charCard" data-skin="https://pngimg.com/d/anime_girl_PNG22.png">
+<img src="https://pngimg.com/d/anime_girl_PNG22.png">
+<h2>Yuna</h2>
+</div>
+</div>
+</div>
+
+<div id="game">
+<div id="map"></div>
+
+<div class="house" style="left:120px;top:120px"></div>
+<div class="house" style="left:900px;top:180px"></div>
+<div class="house" style="left:650px;top:520px"></div>
+
+<div id="player">
+<img id="playerSkin" src="">
+</div>
+
+<div class="npc" id="npc" style="left:700px;top:300px;">
+<img id="npcImg" src="https://pngimg.com/d/baby_PNG51757.png">
+</div>
+
+<div class="trash" style="left:400px;top:500px">🧃</div>
+<div class="trash" style="left:950px;top:450px">📄</div>
+<div class="trash" style="left:250px;top:650px">🗑️</div>
+<div class="trash" style="left:700px;top:600px">🥤</div>
+<div class="trash" style="left:1100px;top:300px">🍟</div>
+<div class="trash" style="left:500px;top:250px">🧋</div>
+
+<div id="ui">
+<div id="score">Valores: 0 ⭐</div>
+<div id="coins">Monedas: 0 🪙</div>
+<div id="rank">Rango: Ayudante Novata</div>
+<div id="shop">✨ Tienda: Presiona E cerca de la estrella</div>
+<div id="dialogue">Ayuda personas y recoge basura por la ciudad ✨</div>
+<div id="choices"></div>
+</div>
+
+<div class="instructions">
+W A S D para moverte • ayuda personas • recoge basura
+</div>
+
+<div id="message"></div>
+
+<div id="shopStar" style="position:absolute;right:120px;bottom:120px;font-size:70px;z-index:6;">⭐</div>
+</div>
+
+<script>
+const player=document.getElementById('player');
+const playerSkin=document.getElementById('playerSkin');
+const npc=document.getElementById('npc');
+const npcImg=document.getElementById('npcImg');
+const dialogue=document.getElementById('dialogue');
+const choices=document.getElementById('choices');
+const scoreText=document.getElementById('score');
+const coinsText=document.getElementById('coins');
+const rankText=document.getElementById('rank');
+const message=document.getElementById('message');
+
+let x=300;
+let y=300;
+let score=0;
+let coins=0;
+let activeMission=false;
+let speed=20;
+let helperUnlocked=false;
+
+const npcSkins=[
+'https://pngimg.com/d/baby_PNG51757.png',
+'https://pngimg.com/d/child_PNG17743.png',
+'https://pngimg.com/d/kids_PNG4987.png'
+];
+
+const missions=[
+{
+text:'Un niño perdió sus colores en la escuela',
+options:[
+{text:'Ayudarle a encontrarlos 🤝',good:true,msg:'¡Ganaste puntos de solidaridad!'},
+{text:'Ignorarlo 😕',good:false,msg:'Ayudar a otros es importante.'}
+]
+},
+{
+text:'Una señora necesita ayuda con bolsas',
+options:[
+{text:'Ayudarla 💖',good:true,msg:'¡La ciudad está feliz contigo!'},
+{text:'Seguir caminando 😶',good:false,msg:'Todos podemos ayudar.'}
+]
+},
+{
+text:'Un niño está solo en el recreo',
+options:[
+{text:'Invitarlo a jugar 🎮',good:true,msg:'¡Mostraste amistad y empatía!'},
+{text:'No hacer nada 😕',good:false,msg:'Todos merecen sentirse incluidos.'}
+]
+},
+{
+text:'Hay basura en el parque',
+options:[
+{text:'Recogerla 🌎',good:true,msg:'¡Cuidaste el medio ambiente!'},
+{text:'Dejarla ahí 🗑️',good:false,msg:'Hay que cuidar los espacios públicos.'}
+]
+}
+];
+
+function startGame(skin){
+document.getElementById('menu').style.display='none';
+document.getElementById('game').style.display='block';
+playerSkin.src=skin;
+}
+
+const cards=document.querySelectorAll('.charCard');
+
+cards.forEach(card=>{
+card.addEventListener('click',()=>{
+startGame(card.dataset.skin);
+});
+});
+
+function updatePlayer(){
+player.style.left=x+'px';
+player.style.top=y+'px';
+
+const npcX=parseInt(npc.style.left);
+const npcY=parseInt(npc.style.top);
+
+if(Math.abs(x-npcX)<80 && Math.abs(y-npcY)<80 && !activeMission){
+showMission();
+}
+
+checkTrash();
+checkShop();
+updateRank();
+}
+
+function randomNpc(){
+npc.style.left=Math.floor(Math.random()*1000+100)+'px';
+npc.style.top=Math.floor(Math.random()*500+100)+'px';
+npcImg.src=npcSkins[Math.floor(Math.random()*npcSkins.length)];
+}
+
+function showMission(){
+activeMission=true;
+
+const mission=missions[Math.floor(Math.random()*missions.length)];
+
+dialogue.innerText=mission.text;
+choices.innerHTML='';
+
+mission.options.forEach(option=>{
+const btn=document.createElement('button');
+btn.innerText=option.text;
+
+btn.onclick=()=>{
+if(option.good){
+score+=10;
+coins+=5;
+createSparkles();
+}
+else{
+score-=5;
+}
+
+scoreText.innerText='Valores: '+score+' ⭐';
+coinsText.innerText='Monedas: '+coins+' 🪙';
+
+showMessage(option.msg);
+
+choices.innerHTML='';
+
+setTimeout(()=>{
+activeMission=false;
+dialogue.innerText='Sigue ayudando personas por la ciudad ✨';
+randomNpc();
+},1800);
+};
+
+choices.appendChild(btn);
+});
+}
+
+function showMessage(text){
+message.style.display='block';
+message.innerText=text;
+
+setTimeout(()=>{
+message.style.display='none';
+},1500);
+}
+
+function createSparkles(){
+for(let i=0;i<15;i++){
+const spark=document.createElement('div');
+spark.classList.add('spark');
+
+spark.style.left=(x+Math.random()*80)+'px';
+spark.style.top=(y+Math.random()*80)+'px';
+
+document.body.appendChild(spark);
+
+setTimeout(()=>{
+spark.remove();
+},1000);
+}
+}
+
+function checkTrash(){
+const trash=document.querySelectorAll('.trash');
+
+trash.forEach(item=>{
+if(item.style.display==='none') return;
+
+const tx=parseInt(item.style.left);
+const ty=parseInt(item.style.top);
+
+if(Math.abs(x-tx)<50 && Math.abs(y-ty)<50){
+item.style.display='none';
+coins+=3;
+score+=2;
+
+coinsText.innerText='Monedas: '+coins+' 🪙';
+scoreText.innerText='Valores: '+score+' ⭐';
+
+showMessage('✨ ¡Recogiste basura!');
+}
+});
+}
+
+function checkShop(){
+const sx=window.innerWidth-120;
+const sy=window.innerHeight-120;
+
+if(Math.abs(x-sx)<100 && Math.abs(y-sy)<100){
+dialogue.innerText='✨ Tienda de recompensas: presiona E para usar monedas';
+}
+}
+
+function buyReward(){
+if(coins>=20 && !helperUnlocked){
+coins-=20;
+helperUnlocked=true;
+speed=35;
+coinsText.innerText='Monedas: '+coins+' 🪙';
+showMessage('🎉 ¡Desbloqueaste súper velocidad!');
+}
+else if(helperUnlocked){
+showMessage('✨ Ya tienes esta mejora');
+}
+else{
+showMessage('🪙 Necesitas 20 monedas');
+}
+}
+
+function spawnTrash(){
+const trashIcons=['🧃','📄','🥤','🍟','🗑️','🧋'];
+
+const trash=document.createElement('div');
+trash.classList.add('trash');
+trash.innerText=trashIcons[Math.floor(Math.random()*trashIcons.length)];
+
+trash.style.left=Math.floor(Math.random()*(window.innerWidth-100))+'px';
+trash.style.top=Math.floor(Math.random()*(window.innerHeight-100))+'px';
+
+document.getElementById('game').appendChild(trash);
+}
+
+setInterval(()=>{
+spawnTrash();
+},5000);
+
+function updateRank(){
+if(score>=80){
+rankText.innerText='Rango: Heroína Legendaria 🌟';
+}
+else if(score>=40){
+rankText.innerText='Rango: Protectora de la Ciudad 💖';
+}
+else if(score>=20){
+rankText.innerText='Rango: Guerrera Amable ✨';
+}
+else{
+rankText.innerText='Rango: Ayudante Novata';
+}
+}
+
+window.addEventListener('keydown',e=>{
+if(activeMission) return;
+
+if(e.key==='a' || e.key==='A') x-=speed;
+if(e.key==='d' || e.key==='D') x+=speed;
+if(e.key==='w' || e.key==='W') y-=speed;
+if(e.key==='s' || e.key==='S') y+=speed;
+
+if(x<0) x=0;
+if(y<0) y=0;
+if(x>window.innerWidth-100) x=window.innerWidth-100;
+if(y>window.innerHeight-100) y=window.innerHeight-100;
+
+if((e.key==='e' || e.key==='E')){
+buyReward();
+}
+
+updatePlayer();
+});
+
+randomNpc();
+updatePlayer();
+</script>
+</body>
+</html>

@@ -1,0 +1,551 @@
+# GeoGuesser Escolar Cursed Edition
+
+```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GeoGuesser Cursed Edition</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial;
+}
+
+body{
+overflow:hidden;
+background:black;
+color:white;
+}
+
+#menu{
+position:absolute;
+width:100%;
+height:100%;
+display:flex;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+text-align:center;
+background:
+linear-gradient(rgba(0,0,0,.7),rgba(0,0,0,.9)),
+url('https://images.unsplash.com/photo-1521295121783-8a321d551ad2?q=80&w=2070&auto=format&fit=crop');
+background-size:cover;
+background-position:center;
+}
+
+#menu h1{
+font-size:70px;
+text-shadow:0 0 20px cyan;
+animation:glow 2s infinite alternate;
+}
+
+#menu p{
+margin-top:20px;
+font-size:22px;
+width:70%;
+line-height:1.5;
+opacity:.9;
+}
+
+button{
+margin-top:35px;
+padding:18px 45px;
+font-size:24px;
+border:none;
+border-radius:18px;
+background:cyan;
+font-weight:bold;
+cursor:pointer;
+transition:.2s;
+}
+
+button:hover{
+transform:scale(1.08);
+box-shadow:0 0 25px cyan;
+}
+
+#game{
+display:none;
+width:100%;
+height:100vh;
+position:relative;
+overflow:hidden;
+}
+
+#scene{
+position:absolute;
+width:100%;
+height:100%;
+background-size:cover;
+background-position:center;
+filter:brightness(.65);
+transition:1s;
+}
+
+#overlay{
+position:absolute;
+width:100%;
+height:100%;
+background:linear-gradient(transparent,rgba(0,0,0,.8));
+}
+
+#hud{
+position:absolute;
+top:30px;
+left:50%;
+transform:translateX(-50%);
+width:85%;
+max-width:1100px;
+background:rgba(0,0,0,.45);
+padding:25px;
+border-radius:25px;
+backdrop-filter:blur(6px);
+}
+
+#question{
+font-size:24px;
+line-height:1.5;
+text-align:center;
+}
+
+#topbar{
+display:flex;
+justify-content:space-between;
+margin-top:20px;
+font-size:22px;
+flex-wrap:wrap;
+gap:10px;
+}
+
+#brainBar{
+width:100%;
+height:25px;
+background:rgba(255,255,255,.15);
+border-radius:20px;
+overflow:hidden;
+margin-top:20px;
+}
+
+#brainFill{
+height:100%;
+width:100%;
+background:lime;
+transition:.3s;
+}
+
+#choices{
+position:absolute;
+bottom:60px;
+left:50%;
+transform:translateX(-50%);
+display:grid;
+grid-template-columns:repeat(2,280px);
+gap:20px;
+}
+
+.choice{
+padding:16px;
+background:rgba(255,255,255,.08);
+border:2px solid white;
+border-radius:18px;
+text-align:center;
+font-size:18px;
+cursor:pointer;
+transition:.2s;
+backdrop-filter:blur(4px);
+}
+
+.choice:hover{
+background:cyan;
+color:black;
+transform:scale(1.05);
+}
+
+#result{
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+font-size:45px;
+font-weight:bold;
+display:none;
+text-align:center;
+text-shadow:0 0 20px black;
+animation:pop .5s infinite alternate;
+}
+
+#rankBox{
+position:absolute;
+right:25px;
+top:25px;
+background:rgba(0,0,0,.5);
+padding:15px;
+border-radius:20px;
+font-size:20px;
+backdrop-filter:blur(6px);
+}
+
+#eventBox{
+position:absolute;
+left:25px;
+bottom:25px;
+background:rgba(0,0,0,.5);
+padding:15px;
+border-radius:20px;
+font-size:20px;
+backdrop-filter:blur(6px);
+animation:glow 2s infinite alternate;
+}
+
+.floatingText{
+position:absolute;
+font-size:40px;
+font-weight:bold;
+pointer-events:none;
+animation:floatUp 2s forwards;
+}
+
+@keyframes floatUp{
+0%{
+opacity:1;
+transform:translateY(0);
+}
+100%{
+opacity:0;
+transform:translateY(-150px);
+}
+}
+
+@keyframes pop{
+from{
+transform:translate(-50%,-50%) scale(1);
+}
+
+to{
+transform:translate(-50%,-50%) scale(1.08);
+}
+}
+
+@keyframes shake{
+0%{transform:translate(0)}
+25%{transform:translate(6px,-6px)}
+50%{transform:translate(-6px,6px)}
+75%{transform:translate(6px,6px)}
+100%{transform:translate(0)}
+}
+
+@keyframes glow{
+from{
+text-shadow:0 0 10px cyan;
+}
+
+to{
+text-shadow:0 0 30px cyan;
+}
+}
+
+</style>
+</head>
+<body>
+
+<div id="menu">
+<h1>GEOGUESSER CURSED EDITION</h1>
+
+<p>
+Aprende países, monumentos, cultura y lugares famosos mientras sobrevives al caos geográfico interdimensional.
+</p>
+
+<button onclick="startGame()">INICIAR VIAJE</button>
+</div>
+
+<div id="game">
+
+<div id="scene"></div>
+<div id="overlay"></div>
+
+<div id="hud">
+<div id="question"></div>
+
+<div id="topbar">
+<div id="score">Puntos: 0</div>
+<div id="coins">Globocoins: 0</div>
+<div id="round">Ronda: 1</div>
+</div>
+
+<div id="brainBar">
+<div id="brainFill"></div>
+</div>
+
+</div>
+
+<div id="rankBox">
+Rango:<br>
+<span id="rank">Turista Perdido</span>
+</div>
+
+<div id="eventBox">
+Evento: Normal
+</div>
+
+<div id="choices"></div>
+<div id="result"></div>
+
+</div>
+
+<script>
+
+const places = [
+
+{
+image:"https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=2073&auto=format&fit=crop",
+question:"Este país europeo tiene una torre famosa, mucho pan y ciudades antiguas.",
+answer:"Francia",
+choices:["Italia","México","Francia","Brasil"]
+},
+
+{
+image:"https://images.unsplash.com/photo-1528360983277-13d401cdc186?q=80&w=2070&auto=format&fit=crop",
+question:"Este país asiático es famoso por el anime, videojuegos y tecnología. Hay un señor con pelo amarillo gritando en cada esquina.",
+answer:"Japón",
+choices:["China","Japón","Corea","España"]
+},
+
+{
+image:"https://images.unsplash.com/photo-1614027164847-1b28cfe1df60?q=80&w=2070&auto=format&fit=crop",
+question:"Este país tiene tacos, mariachis y demasiados memes raros de internet. Parece que un mexichango vive aquí.",
+answer:"México",
+choices:["Chile","México","Argentina","Perú"]
+},
+
+{
+image:"https://images.unsplash.com/photo-1483729558449-99ef09a8c325?q=80&w=2070&auto=format&fit=crop",
+question:"Este país sudamericano es conocido por el Amazonas y el fútbol. Hay un futbolista bailando en todos los memes.",
+answer:"Brasil",
+choices:["Brasil","Alemania","Grecia","México"]
+},
+
+{
+image:"https://images.unsplash.com/photo-1526392060635-9d6019884377?q=80&w=2071&auto=format&fit=crop",
+question:"Este país tiene montañas enormes, llamas y casas en cerros imposibles de subir sin perder el aliento.",
+answer:"Perú",
+choices:["Perú","India","Rusia","Egipto"]
+},
+
+{
+image:"https://images.unsplash.com/photo-1531065208531-4036c0dba3ca?q=80&w=2070&auto=format&fit=crop",
+question:"Este país es famoso por el café, la música y señores con bigote en series de internet.",
+answer:"Colombia",
+choices:["Venezuela","Colombia","Brasil","Italia"]
+},
+
+{
+image:"https://images.unsplash.com/photo-1516306580123-e6e52b1b7b5f?q=80&w=2070&auto=format&fit=crop",
+question:"Este país tiene playas caribeñas, montañas y esqueletos bailando en memes extraños.",
+answer:"Venezuela",
+choices:["Argentina","Chile","Venezuela","México"]
+},
+
+{
+image:"https://images.unsplash.com/photo-1518638150340-f706e86654de?q=80&w=2070&auto=format&fit=crop",
+question:"Este país es famoso por el tango, el fútbol y la carne asada.",
+answer:"Argentina",
+choices:["Argentina","Perú","Japón","Canadá"]
+}
+
+];
+
+const memeMessages = [
+"Tu cerebro geográfico evolucionó",
+"Google Maps está orgulloso de ti",
+"Nivel de geografía aumentado",
+"Modo cartógrafo desbloqueado",
+"El atlas te observa",
+"Ohio geográfico detectado",
+"Demasiado conocimiento mundial",
+"Tu mapa mental creció"
+];
+
+const events = [
+"Modo Cerebro Gigante",
+"Tormenta Geográfica",
+"Viaje Interdimensional",
+"Modo Ohio",
+"Mapa Maldito",
+"Modo Velocidad"
+];
+
+let score = 0;
+let coins = 0;
+let round = 1;
+let brain = 100;
+let current;
+
+function startGame(){
+
+document.getElementById("menu").style.display="none";
+document.getElementById("game").style.display="block";
+
+nextRound();
+
+setInterval(randomEvent,6000);
+
+}
+
+function nextRound(){
+
+current = places[Math.floor(Math.random()*places.length)];
+
+const scene = document.getElementById("scene");
+scene.style.backgroundImage = `url(${current.image})`;
+
+const question = document.getElementById("question");
+question.innerText = current.question;
+
+const choicesDiv = document.getElementById("choices");
+choicesDiv.innerHTML = "";
+
+current.choices.forEach(choice=>{
+
+const btn = document.createElement("div");
+btn.className = "choice";
+btn.innerText = choice;
+btn.onclick = ()=>checkAnswer(choice);
+
+choicesDiv.appendChild(btn);
+
+});
+
+}
+
+function checkAnswer(choice){
+
+const result = document.getElementById("result");
+
+if(choice === current.answer){
+
+score += 10;
+coins += 5;
+round++;
+
+updateHUD();
+
+result.style.display = "block";
+result.style.color = "lime";
+result.innerHTML = "CORRECTO";
+
+spawnFloatingText(memeMessages[Math.floor(Math.random()*memeMessages.length)], "lime");
+
+}else{
+
+brain -= 20;
+
+updateHUD();
+
+result.style.display = "block";
+result.style.color = "red";
+result.innerHTML = "ERROR GEOGRÁFICO";
+
+spawnFloatingText("ERROR INTERDIMENSIONAL", "red");
+
+screenShake();
+
+if(brain <= 0){
+
+setTimeout(()=>{
+alert("Tu cerebro explotó por falta de geografía");
+location.reload();
+},1200);
+
+}
+
+}
+
+setTimeout(()=>{
+result.style.display = "none";
+nextRound();
+},1800);
+
+}
+
+function updateHUD(){
+
+document.getElementById("score").innerText = `Puntos: ${score}`;
+document.getElementById("coins").innerText = `Globocoins: ${coins}`;
+document.getElementById("round").innerText = `Ronda: ${round}`;
+document.getElementById("brainFill").style.width = brain + "%";
+
+let rank = "Turista Perdido";
+
+if(score >= 20) rank = "Explorador";
+if(score >= 50) rank = "Señor del Atlas";
+if(score >= 80) rank = "Dios Cartográfico";
+
+
+document.getElementById("rank").innerText = rank;
+
+}
+
+function screenShake(){
+
+document.body.style.animation = "shake .3s 4";
+
+setTimeout(()=>{
+document.body.style.animation = "";
+},1000);
+
+}
+
+function randomEvent(){
+
+const e = events[Math.floor(Math.random()*events.length)];
+
+document.getElementById("eventBox").innerText = "Evento: " + e;
+
+if(e === "Modo Velocidad"){
+
+document.getElementById("scene").style.filter = "brightness(.5) blur(2px)";
+
+setTimeout(()=>{
+document.getElementById("scene").style.filter = "brightness(.65)";
+},3000);
+
+}
+
+if(e === "Tormenta Geográfica"){
+
+screenShake();
+
+}
+
+}
+
+function spawnFloatingText(text,color){
+
+const div = document.createElement("div");
+
+div.className = "floatingText";
+div.innerText = text;
+div.style.color = color;
+div.style.left = Math.random()*70 + 10 + "%";
+div.style.top = "50%";
+
+
+document.body.appendChild(div);
+
+setTimeout(()=>{
+div.remove();
+},2000);
+
+}
+
+</script>
+
+</body>
+</html>
+```
